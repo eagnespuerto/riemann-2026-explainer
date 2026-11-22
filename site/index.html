@@ -88,7 +88,7 @@ footer { color: var(--muted); font: 14px/1.5 Inter, system-ui, sans-serif; borde
 <h2 id="part-2-riemanns-machine">Part 2. Riemann's machine</h2>
 <p>In 1859 Bernhard Riemann wrote an 8-page paper with a new tool, the <strong>zeta function</strong>. It starts as a simple sum:</p>
 <p>ζ(s) = 1 + 1/2ˢ + 1/3ˢ + 1/4ˢ + …</p>
-<p>Euler had already seen that this same sum can be rewritten as a product with one piece for each prime. So whatever zeta does, it is secretly doing with the primes.</p>
+<p>Euler had already seen that this same sum can be rewritten as a product with one piece for each prime. So anything zeta does depends on the primes.</p>
 <p>Riemann's move was to feed it complex numbers, points on a flat plane instead of a number line. The function then has places where its output is exactly zero. These are its <strong>zeros</strong>.</p>
 <p>Some zeros are dull. They sit at −2, −4, −6 and so on, and are called trivial. The rest, infinitely many, all sit inside a vertical band of the plane, the <strong>critical strip</strong>. Down the middle of the band runs the <strong>critical line</strong>.</p>
 <p>Riemann showed that these zeros control the primes. A good picture is sound. Each zero is like one pure note. Play all the notes together, with the right loudness, and the sound you hear is the exact pattern of the primes, gaps and all. The smooth trend from Part 1 is the bass. The zeros are the higher notes that make the noise.</p>
@@ -100,14 +100,14 @@ footer { color: var(--muted); font: 14px/1.5 Inter, system-ui, sans-serif; borde
 <h2 id="part-3-the-hypothesis">Part 3. The hypothesis</h2>
 <p>Riemann computed a few zeros by hand and found all of them on the centre line. He wrote that it was "very likely" all of them are, then set the question aside.</p>
 <p>That guess is the <strong>Riemann Hypothesis</strong>: every non-trivial zero lies exactly on the critical line.</p>
-<p>Computers have since checked more than ten trillion zeros, and all of them are on the line. That is evidence, not proof. Infinitely many zeros are left, and in number theory patterns sometimes break at sizes no computer will reach.</p>
-<p>If the hypothesis is true, the noise in the primes is as small as it could possibly be, about the square root of the size of the numbers you look at. Up to a trillion, the error in the smooth estimate would be no bigger than about a million times a small factor. Thousands of published theorems begin with "assume the Riemann Hypothesis", so a proof turns all of them into plain theorems at once.</p>
+<p>Computers have since checked more than ten trillion zeros, and all of them are on the line. That still says nothing about the infinitely many zeros left, and in number theory patterns sometimes break at sizes no computer will reach.</p>
+<p>If the hypothesis is true, the noise in the primes is as small as it could possibly be, about the square root of the size of the numbers you look at. Up to a trillion, the count of primes would be within about 1.1 million of the smooth estimate (Lowell Schoenfeld worked out this bound in 1976). Thousands of published theorems begin with "assume the Riemann Hypothesis", so a proof turns all of them into plain theorems at once.</p>
 <p>It has a $1 million Clay Millennium Prize attached. It was also on Hilbert's list of big problems in 1900.</p>
 <h3 id="the-cousins">The cousins</h3>
 <p>Zeta has a family of relatives called <strong>Dirichlet L-functions</strong>. Each one is built like zeta but with a repeating pattern of weights on the terms. That pattern can pick out, for example, primes that end in 7. The <strong>Generalised Riemann Hypothesis</strong> (GRH) says the zeros of all these relatives also lie on the centre line. If it holds, primes split evenly between endings 1, 3, 7 and 9, with the smallest possible noise.</p>
 <p>Alpöge's code claims both: RH for zeta, and GRH for every Dirichlet L-function. It does not claim GRH for the wider families (Dedekind, Hecke and general automorphic L-functions).</p>
 <h2 id="part-4-lean-the-proof-checker">Part 4. Lean, the proof checker</h2>
-<p>Alpöge did not publish a paper. He published a program in <strong>Lean</strong>.</p>
+<p>Alpöge published a program in <strong>Lean</strong> instead of a paper.</p>
 <p>Lean is a programming language where a program is a proof. Each step has to follow from earlier steps by the basic rules of logic. A small core program, the <strong>kernel</strong>, checks every step. If the kernel accepts the whole file, the theorem is proved.</p>
 <p>There are only a few ways to cheat, and each one leaves a trace:</p>
 <ul>
@@ -125,7 +125,7 @@ footer { color: var(--muted); font: 14px/1.5 Inter, system-ui, sans-serif; borde
 <p>The word <code>RiemannHypothesis</code> is not defined anywhere in his code. It comes from <strong>Mathlib</strong>, the shared maths library that hundreds of people have built since 2017. Its definition says: for every complex number <em>s</em>, if zeta is zero at <em>s</em>, and <em>s</em> is not one of the trivial zeros, and <em>s</em> is not 1, then the real part of <em>s</em> is ½. That definition existed long before this proof. Alpöge could not quietly bend it.</p>
 <p>The GRH statements are a different case. Mathlib does not have them yet, so they live in the project's own file, <code>src/Statements.lean</code>. It is 16 lines long and imports nothing but Mathlib. People have to read those 16 lines and agree they say the right thing. The checkers below did that by hand.</p>
 <h2 id="part-6-who-checked-it">Part 6. Who checked it</h2>
-<p>On release day, nobody had built the code. It takes a very large machine. Within about a day, three independent checks were done, and the Lean and Mathlib communities issued a statement.</p>
+<p>On release day, nobody had built the code. It takes a very large machine. Within about a day, three independent groups had checked it, and the Lean and Mathlib communities had issued a statement.</p>
 <p><strong>Andrew Sutherland (MIT)</strong> compiled the whole project separately. Scientific American quoted him saying the proof was "independently rechecked by the Lean kernel with only the three standard axioms." His public record (updated 12:55 UTC on 21 November) reports all 175,187 modules compiling with zero errors on Lean v4.33.1. Two separate kernels written by other people, nanoda and con-leche, each accepted the full exported proof. A third, lean4lean, accepted every compiled module.</p>
 <p><strong>A second check, <a href="https://mrubinst.github.io/grh-lean-verification/">GRH Lean Check</a></strong>, is hosted at mrubinst.github.io and links to Michael Rubinstein's University of Waterloo page. It marked all its checks complete at 10:10 UTC on 21 November. It confirmed the downloaded source matched Alpöge's release byte for byte. It read the statements by hand and scanned all 175,187 files for the cheats from Part 4, finding none. It compiled everything with zero errors. <code>#print axioms</code> gave only the three standard axioms for all five headline theorems. It replayed every module through the kernel with zero rejections. The nanoda kernel checked 1,484,729 declarations with no errors.</p>
 <p><strong>A third group, <a href="https://github.com/Hertaspace/alpoge-rh-lean-verification">Hertaspace</a></strong>, says it has no ties to Alpöge. It finished its build at 22:02 UTC on 21 November and got the same three axioms. Its compiled main file has exactly the same fingerprint (SHA-256 hash) as the MIT build. Two machines, run by different people, produced the same bytes.</p>
@@ -139,7 +139,7 @@ footer { color: var(--muted); font: 14px/1.5 Inter, system-ui, sans-serif; borde
 <h2 id="part-7-how-big-it-is">Part 7. How big it is</h2>
 <p>The code is about <strong>17.4 million lines</strong> in <strong>175,187 files</strong>. All of Mathlib is about 2 million lines. So this one proof is roughly eight times the size of the library it builds on.</p>
 <p>Alpöge says that if you wrote it out for humans, it would currently fill more than <strong>250,000 pages</strong>. His timeline runs from 6 October to 16 November 2026, about six weeks, with Claude writing most of the code.</p>
-<p>Most of those lines are not new ideas. They are decades of known mathematics that nobody had typed into Lean before: class field theory, the Chebotarev density theorem, abelian varieties, Shimura varieties, p-adic Hodge theory, the representation theory of big symmetry groups. Many folders are named <code>PublishedTheorems</code>. Before the new idea could run, the computer had to learn a large slice of modern number theory.</p>
+<p>Most of those lines are decades of known mathematics that nobody had typed into Lean before: class field theory, the Chebotarev density theorem, abelian varieties, Shimura varieties, p-adic Hodge theory, the representation theory of big symmetry groups. Many folders are named <code>PublishedTheorems</code>. Before the new idea could run, the computer had to learn a large slice of modern number theory.</p>
 <table>
 <thead>
 <tr>
@@ -184,7 +184,7 @@ footer { color: var(--muted); font: 14px/1.5 Inter, system-ui, sans-serif; borde
 <h2 id="part-8-step-one-the-mirror">Part 8. Step one: the mirror</h2>
 <p>Now the proof itself, from the top down.</p>
 <p>Zeta has a built-in symmetry called the <strong>functional equation</strong>. It ties the value at a point on the left of the centre line to the value at its mirror image on the right. So zeros come in mirror pairs. If there is a zero at some spot to the left of the line, there is one at the matching spot to the right.</p>
-<p>That means you only have to prove one thing: <strong>there are no zeros to the right of the line.</strong> If none are on the right, the mirror says none are on the left. Every zero is then on the line.</p>
+<p>That means you only have to prove that no zeros lie to the right of the line. If none are on the right, the mirror says none are on the left. Every zero is then on the line.</p>
 <p>Mathematicians have known this reduction for about 150 years. In the Lean code it lives in <code>src/Formalism/GammaFactorNonvanishing/CritLine.lean</code>. Line 16 starts with a step called <code>lt_or_gt_of_ne</code>, which says "a zero off the line is either left of it or right of it". The proof then rules out each side. Alpöge jokes in his note that Claude's draft write-up opened the same way.</p>
 <p>The intermediate claim has a name in the code, <code>EveryCharacter</code>. It says that for every Dirichlet L-function, there is no zero with real part bigger than ½. Zeta is the simplest member of that family, so RH comes out as a special case.</p>
 <p>All the difficulty is in proving <code>EveryCharacter</code>. The rest of this explainer is about that.</p>
@@ -205,13 +205,13 @@ footer { color: var(--muted); font: 14px/1.5 Inter, system-ui, sans-serif; borde
 <h2 id="part-10-step-three-theta-lifts-as-stand-in-derivatives">Part 10. Step three: theta lifts as stand-in derivatives</h2>
 <p>Alpöge's new idea fills that gap.</p>
 <p>There is a classical tool called a <strong>theta lift</strong>. It starts with an <strong>automorphic form</strong>, a function with an enormous amount of symmetry. Modular forms, the objects at the heart of the proof of Fermat's Last Theorem, are the simplest examples. A theta lift takes such a form living on one symmetry group and produces a new form on a bigger group.</p>
-<p>His observation is that <strong>one theta lift behaves like one derivative.</strong> Each lift adds one level of "zero many times over". Chain <em>m</em> lifts together, through a sequence of bigger and bigger groups, and you get multiplicity <em>m</em>. That is exactly what Stepanov's counting argument needs, and now it works over the whole numbers.</p>
+<p>His observation is that one theta lift behaves like one derivative. Each lift adds one level of "zero many times over". Chain <em>m</em> lifts together, through a sequence of bigger and bigger groups, and you get multiplicity <em>m</em>. Stepanov's counting argument needs exactly that, and now it works over the whole numbers.</p>
 <figure class="clip"><video src="media/ThetaChain.mp4" poster="media/ThetaChain.png" controls muted loop playsinline preload="none" aria-label="Each theta lift into a bigger group adds one level of multiplicity."></video><figcaption>Each theta lift into a bigger group adds one level of multiplicity.</figcaption></figure>
 
-<p>How long a chain? To control the primes up to some size <em>X</em>, the chain needs about <strong>√X</strong> lifts. The square root is the same square root from Part 3, the size of the noise RH promises. Alpöge writes that this is the line that will make fellow mathematicians "fall out of their chairs".</p>
+<p>To control the primes up to some size <em>X</em>, the chain needs about √X lifts. That is the same square root as in Part 3, the size of the noise RH promises. Alpöge writes that this is the line that will make fellow mathematicians "fall out of their chairs".</p>
 <p>He also says some of the description in his note is his paraphrase of Claude's summary of the code, and might need revising. The human-level account of this step is still being worked out.</p>
 <h2 id="part-11-the-supporting-cast">Part 11. The supporting cast</h2>
-<p>Many other famous results do jobs inside the argument. Alpöge's note names them. Below is what each one is in general. How each one fits into this proof is in his note, and in places he says even that is still provisional.</p>
+<p>Many older results do jobs inside the argument. Alpöge's note names them. Below is what each one is in general. How each one fits into this proof is in his note, and in places he says even that is still provisional.</p>
 <ul>
 <li><strong>Iwasawa towers</strong>: an infinite stack of number fields, each built on the last. Alpöge's note uses them as the whole-number stand-in for a pigeonhole-style counting step that works easily in the toy world.</li>
 <li><strong>The Rallis seesaw</strong>: a classical identity that compares two different theta lifts.</li>

@@ -190,7 +190,7 @@ class MirrorStep(Scene):
         self.play(FadeIn(steps[3]), FadeOut(left), FadeOut(q), FadeOut(arc))
         self.play(FadeIn(steps[4]), FadeOut(right), FadeOut(cross))
 
-        hard = label("The hard part: show nothing\nlives to the right of ½.", 26, ORANGE)
+        hard = label("The hard part is showing nothing\nlives to the right of ½.", 26, ORANGE)
         hard.next_to(steps, DOWN, buff=0.6, aligned_edge=LEFT)
         self.play(Write(hard))
         self.wait(2)
@@ -221,7 +221,7 @@ class Multiplicity(Scene):
         for m in range(2, 10):
             new_tag = label(f"(x − 3){sup[m - 1]}  multiplicity {m}", 28, TEAL_C).move_to(tag, aligned_edge=LEFT)
             self.play(Transform(g, graph(m)), Transform(tag, new_tag), run_time=0.9)
-        note = label("Higher multiplicity: flatter at the root.\nA polynomial of degree d has at most d roots,\ncounting multiplicity, so deep roots must be few.",
+        note = label("Higher multiplicity means a flatter graph at the root.\nA polynomial of degree d has at most d roots,\ncounting multiplicity, so deep roots must be few.",
                      22).to_edge(DOWN, buff=0.3)
         self.play(FadeIn(note))
         self.wait(2.5)
