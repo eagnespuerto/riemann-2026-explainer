@@ -25,7 +25,7 @@ All credit for the proof goes to Levent Alpöge. This repository only explains i
 | `content/explainer.md` | the explainer text, 12 parts, with clip markers |
 | `manim/scenes.py` | five Manim scenes (zeros on the line, primes rebuilt from zeros, the mirror step, multiplicity, the theta-lift chain) |
 | `manim/render.py` | renders each scene to `site/media/` with a poster frame |
-| `build.py` | turns the Markdown into `site/index.html` |
+| `build.py` | turns the three Markdown files into the site pages (KaTeX for the maths) |
 | `site/` | the published static site |
 
 The zeta zeros in the animations are real ones, computed with mpmath. The "primes rebuilt from zeros" clip uses the Riemann–von Mangoldt explicit formula with the first 0, 3, 10, 30 and 100 zeros.
@@ -41,6 +41,10 @@ python -m http.server -d site 8000
 
 No LaTeX needed, because every label is plain text.
 
-## Related
+## Three versions
 
-The same explainer, plus a shorter version and a calculus-level summary, lives in [random-unsorted-cloud-stuff/riemann-hypothesis-lean-summary](https://github.com/eagnespuerto/random-unsorted-cloud-stuff/tree/main/riemann-hypothesis-lean-summary).
+| Page | Source | For |
+|---|---|---|
+| [Part by part](https://eagnespuerto.github.io/riemann-2026-explainer/) | `content/explainer.md` | anyone; 12 parts with animations and sources |
+| [Short](https://eagnespuerto.github.io/riemann-2026-explainer/short.html) | `content/pop-math.md` | the quick read, no formulas |
+| [Calculus level](https://eagnespuerto.github.io/riemann-2026-explainer/calculus.html) | `content/calculus.md` | readers who know Calculus 1; includes the Lean statements and folder sizes |
