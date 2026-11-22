@@ -39,7 +39,7 @@ python build.py
 python -m http.server -d site 8000
 ```
 
-No LaTeX needed: every label uses plain text.
+No LaTeX needed, because every label is plain text.
 
 ## Related
 
