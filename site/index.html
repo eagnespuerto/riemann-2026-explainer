@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Riemann 2026 Explainer</title>
+<title>The Lean proof of the Riemann Hypothesis, part by part · Riemann 2026 Explainer</title>
 <meta name="description" content="A part-by-part pop-math explainer of Levent Alpöge's Lean proof of the Riemann Hypothesis, with manim animations.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
 :root {
   --bg: #fbfaf7; --fg: #1d1d1f; --muted: #5f6368; --rule: #e3e0d8;
@@ -53,6 +54,9 @@ figure.clip { margin: 28px 0; background: #000; border-radius: 10px; overflow: h
 figure.clip video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #000; }
 figure.clip figcaption { background: var(--card); color: var(--muted); font: 14px/1.5 Inter, system-ui, sans-serif; padding: 10px 14px; }
 .theme { position: fixed; right: 16px; bottom: 16px; font: 13px Inter, system-ui, sans-serif; background: var(--card); color: var(--fg); border: 1px solid var(--rule); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+nav.versions { font: 14px/1.5 Inter, system-ui, sans-serif; color: var(--muted); margin-bottom: 20px; }
+nav.versions span[aria-current] { color: var(--fg); font-weight: 600; }
+.katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
 footer { color: var(--muted); font: 14px/1.5 Inter, system-ui, sans-serif; border-top: 1px solid var(--rule); padding-top: 16px; margin-top: 56px; }
 </style>
 </head>
@@ -76,9 +80,10 @@ footer { color: var(--muted); font: 14px/1.5 Inter, system-ui, sans-serif; borde
 </div>
 </nav>
   <main>
+<nav class="versions" aria-label="Versions"><span aria-current="page">Part by part</span> · <a href="short.html">Short</a> · <a href="calculus.html">Calculus level</a></nav>
 <h1 id="the-lean-proof-of-the-riemann-hypothesis-part-by-part">The Lean proof of the Riemann Hypothesis, part by part</h1>
 <p><em>A longer pop-math explainer of Levent Alpöge's Lean proof, released 20 November 2026. No formulas needed, though a few appear for readers who like them.</em></p>
-<p>Code: <a href="https://github.com/CocoSgt/riemann-hypothesis-lean">CocoSgt/riemann-hypothesis-lean</a>, a GitHub mirror of the author's release at <a href="https://alpo.ge/">https://alpo.ge/</a> · Author's 4-page note: <a href="https://alpo.ge/remark.pdf">https://alpo.ge/remark.pdf</a> · Shorter version: <a href="https://github.com/eagnespuerto/random-unsorted-cloud-stuff/blob/main/riemann-hypothesis-lean-summary/POP-MATH.md">POP-MATH.md</a></p>
+<p>Code: <a href="https://github.com/CocoSgt/riemann-hypothesis-lean">CocoSgt/riemann-hypothesis-lean</a>, a GitHub mirror of the author's release at <a href="https://alpo.ge/">https://alpo.ge/</a> · Author's 4-page note: <a href="https://alpo.ge/remark.pdf">https://alpo.ge/remark.pdf</a> · Other versions: <a href="short.html">short</a> · <a href="calculus.html">calculus level</a></p>
 <hr />
 <h2 id="part-1-the-primes">Part 1. The primes</h2>
 <p>A prime is a whole number bigger than 1 that only 1 and itself divide: 2, 3, 5, 7, 11, 13, 17, and so on forever. Every whole number breaks into primes in exactly one way, so they are the atoms of arithmetic.</p>

@@ -2,7 +2,7 @@
 
 *A longer pop-math explainer of Levent Alpöge's Lean proof, released 20 November 2026. No formulas needed, though a few appear for readers who like them.*
 
-Code: [CocoSgt/riemann-hypothesis-lean](https://github.com/CocoSgt/riemann-hypothesis-lean), a GitHub mirror of the author's release at <https://alpo.ge/> · Author's 4-page note: <https://alpo.ge/remark.pdf> · Shorter version: [POP-MATH.md](https://github.com/eagnespuerto/random-unsorted-cloud-stuff/blob/main/riemann-hypothesis-lean-summary/POP-MATH.md)
+Code: [CocoSgt/riemann-hypothesis-lean](https://github.com/CocoSgt/riemann-hypothesis-lean), a GitHub mirror of the author's release at <https://alpo.ge/> · Author's 4-page note: <https://alpo.ge/remark.pdf> · Other versions: [short](short.html) · [calculus level](calculus.html)
 
 ---
 
