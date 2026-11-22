@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riemann 2026 Explainer</title>
+<meta name="description" content="A part-by-part pop-math explainer of Levent Alpöge's Lean proof of the Riemann Hypothesis, with manim animations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fbfaf7; --fg: #1d1d1f; --muted: #5f6368; --rule: #e3e0d8;
+  --accent: #b5651d; --line: #b8860b; --card: #ffffff; --code: #f2efe8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14151a; --fg: #e8e6e1; --muted: #a3a6ad; --rule: #2c2e36;
+    --accent: #f0a35e; --line: #e8c15a; --card: #1c1d23; --code: #23252c;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14151a; --fg: #e8e6e1; --muted: #a3a6ad; --rule: #2c2e36;
+  --accent: #f0a35e; --line: #e8c15a; --card: #1c1d23; --code: #23252c;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 18px/1.65 "Source Serif 4", Georgia, serif;
+}
+.layout { display: grid; grid-template-columns: 1fr; max-width: 1180px; margin: 0 auto; padding: 0 16px; gap: 48px; }
+@media (min-width: 1000px) { .layout { grid-template-columns: 240px minmax(0, 720px); } }
+nav.toc { font: 14px/1.5 Inter, system-ui, sans-serif; color: var(--muted); }
+@media (min-width: 1000px) { nav.toc { position: sticky; top: 24px; align-self: start; max-height: calc(100vh - 48px); overflow: auto; padding-top: 40px; } }
+@media (max-width: 999px) { nav.toc { border-bottom: 1px solid var(--rule); padding: 16px 0; } }
+nav.toc ul { list-style: none; padding: 0; margin: 0; }
+nav.toc ul ul { display: none; }
+nav.toc a { color: inherit; text-decoration: none; display: block; padding: 3px 0; }
+nav.toc a:hover { color: var(--accent); }
+main { padding: 40px 0 80px; min-width: 0; }
+h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0 0 12px; }
+h2 { font-size: 26px; margin: 56px 0 12px; padding-top: 12px; border-top: 1px solid var(--rule); }
+h3 { font: 600 18px/1.4 Inter, system-ui, sans-serif; margin: 32px 0 8px; }
+a { color: var(--accent); overflow-wrap: anywhere; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+code { background: var(--code); padding: 1px 5px; border-radius: 4px; font-size: 0.85em; overflow-wrap: anywhere; }
+pre { background: var(--code); padding: 14px 16px; border-radius: 8px; overflow-x: auto; font-size: 15px; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; font: 15px/1.4 Inter, system-ui, sans-serif; display: block; overflow-x: auto; }
+th, td { border-bottom: 1px solid var(--rule); padding: 8px 10px; text-align: left; vertical-align: top; }
+figure.clip { margin: 28px 0; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid var(--rule); }
+figure.clip video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #000; }
+figure.clip figcaption { background: var(--card); color: var(--muted); font: 14px/1.5 Inter, system-ui, sans-serif; padding: 10px 14px; }
+.theme { position: fixed; right: 16px; bottom: 16px; font: 13px Inter, system-ui, sans-serif; background: var(--card); color: var(--fg); border: 1px solid var(--rule); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+footer { color: var(--muted); font: 14px/1.5 Inter, system-ui, sans-serif; border-top: 1px solid var(--rule); padding-top: 16px; margin-top: 56px; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="toc" aria-label="Contents"><strong>Contents</strong><div class="toc">
+<ul>
+<li><a href="#part-1-the-primes">Part 1. The primes</a></li>
+<li><a href="#part-2-riemanns-machine">Part 2. Riemann's machine</a></li>
+<li><a href="#part-3-the-hypothesis">Part 3. The hypothesis</a></li>
+<li><a href="#part-4-lean-the-proof-checker">Part 4. Lean, the proof checker</a></li>
+<li><a href="#part-5-the-statement">Part 5. The statement</a></li>
+<li><a href="#part-6-who-checked-it">Part 6. Who checked it</a></li>
+<li><a href="#part-7-how-big-it-is">Part 7. How big it is</a></li>
+<li><a href="#part-8-step-one-the-mirror">Part 8. Step one: the mirror</a></li>
+<li><a href="#part-9-step-two-a-trick-from-a-smaller-world">Part 9. Step two: a trick from a smaller world</a></li>
+<li><a href="#part-10-step-three-theta-lifts-as-stand-in-derivatives">Part 10. Step three: theta lifts as stand-in derivatives</a></li>
+<li><a href="#part-11-the-supporting-cast">Part 11. The supporting cast</a></li>
+<li><a href="#part-12-what-is-settled-and-what-is-not">Part 12. What is settled and what is not</a></li>
+</ul>
+</div>
+</nav>
+  <main>
+<h1 id="the-lean-proof-of-the-riemann-hypothesis-part-by-part">The Lean proof of the Riemann Hypothesis, part by part</h1>
+<p><em>A longer pop-math explainer of Levent Alpöge's Lean proof, released 20 November 2026. No formulas needed, though a few appear for readers who like them.</em></p>
+<p>Code: <a href="https://github.com/CocoSgt/riemann-hypothesis-lean">CocoSgt/riemann-hypothesis-lean</a>, a GitHub mirror of the author's release at <a href="https://alpo.ge/">https://alpo.ge/</a> · Author's 4-page note: <a href="https://alpo.ge/remark.pdf">https://alpo.ge/remark.pdf</a> · Shorter version: <a href="https://github.com/eagnespuerto/random-unsorted-cloud-stuff/blob/main/riemann-hypothesis-lean-summary/POP-MATH.md">POP-MATH.md</a></p>
+<hr />
+<h2 id="part-1-the-primes">Part 1. The primes</h2>
+<p>A prime is a whole number bigger than 1 that only 1 and itself divide: 2, 3, 5, 7, 11, 13, 17, and so on forever. Every whole number breaks into primes in exactly one way, so they are the atoms of arithmetic.</p>
+<p>Up close, primes look random. Twin primes like 11 and 13 sit side by side. Then you get a stretch like 113 to 127 with no primes at all. Nobody can predict the next prime from the last one by a simple rule.</p>
+<p>From far away, though, they thin out smoothly. Around a million, about 1 number in 14 is prime. Around a billion, about 1 in 21. Gauss guessed the rule as a teenager: near a number <em>x</em>, the chance that a number is prime is about 1 over the natural log of <em>x</em>. This was proved in 1896 and is called the Prime Number Theorem.</p>
+<p>So there is a smooth trend with noise on top. The Riemann Hypothesis is a statement about how big that noise can get.</p>
+<h2 id="part-2-riemanns-machine">Part 2. Riemann's machine</h2>
+<p>In 1859 Bernhard Riemann wrote an 8-page paper with a new tool, the <strong>zeta function</strong>. It starts as a simple sum:</p>
+<p>ζ(s) = 1 + 1/2ˢ + 1/3ˢ + 1/4ˢ + …</p>
+<p>Euler had already seen that this same sum can be rewritten as a product with one piece for each prime. So whatever zeta does, it is secretly doing with the primes.</p>
+<p>Riemann's move was to feed it complex numbers, points on a flat plane instead of a number line. The function then has places where its output is exactly zero. These are its <strong>zeros</strong>.</p>
+<p>Some zeros are dull. They sit at −2, −4, −6 and so on, and are called trivial. The rest, infinitely many, all sit inside a vertical band of the plane, the <strong>critical strip</strong>. Down the middle of the band runs the <strong>critical line</strong>.</p>
+<p>Riemann showed that these zeros control the primes. A good picture is sound. Each zero is like one pure note. Play all the notes together, with the right loudness, and the sound you hear is the exact pattern of the primes, gaps and all. The smooth trend from Part 1 is the bass. The zeros are the higher notes that make the noise.</p>
+<figure class="clip"><video src="media/PrimesFromZeros.mp4" poster="media/PrimesFromZeros.png" controls muted loop playsinline preload="none" aria-label="The white staircase is the primes. The orange curve is Riemann&#x27;s formula: the smooth trend plus one wave per zero. With 100 real zeros it already hugs the steps."></video><figcaption>The white staircase is the primes. The orange curve is Riemann&#x27;s formula: the smooth trend plus one wave per zero. With 100 real zeros it already hugs the steps.</figcaption></figure>
+
+<p>Where a zero sits decides how loud its note is. A zero on the centre line gives a quiet note. A zero off to the right of the line would give a louder one, and the primes would be noisier.</p>
+<figure class="clip"><video src="media/ZerosOnTheLine.mp4" poster="media/ZerosOnTheLine.png" controls muted loop playsinline preload="none" aria-label="The first ten zeros, computed with mpmath. All sit on the dashed line at real part ½."></video><figcaption>The first ten zeros, computed with mpmath. All sit on the dashed line at real part ½.</figcaption></figure>
+
+<h2 id="part-3-the-hypothesis">Part 3. The hypothesis</h2>
+<p>Riemann computed a few zeros by hand and found all of them on the centre line. He wrote that it was "very likely" all of them are, then set the question aside.</p>
+<p>That guess is the <strong>Riemann Hypothesis</strong>: every non-trivial zero lies exactly on the critical line.</p>
+<p>Computers have since checked more than ten trillion zeros, and all of them are on the line. That is evidence, not proof. Infinitely many zeros are left, and in number theory patterns sometimes break at sizes no computer will reach.</p>
+<p>If the hypothesis is true, the noise in the primes is as small as it could possibly be, about the square root of the size of the numbers you look at. Up to a trillion, the error in the smooth estimate would be no bigger than about a million times a small factor. Thousands of published theorems begin with "assume the Riemann Hypothesis", so a proof turns all of them into plain theorems at once.</p>
+<p>It has a $1 million Clay Millennium Prize attached. It was also on Hilbert's list of big problems in 1900.</p>
+<h3 id="the-cousins">The cousins</h3>
+<p>Zeta has a family of relatives called <strong>Dirichlet L-functions</strong>. Each one is built like zeta but with a repeating pattern of weights on the terms. That pattern can pick out, for example, primes that end in 7. The <strong>Generalised Riemann Hypothesis</strong> (GRH) says the zeros of all these relatives also lie on the centre line. If it holds, primes split evenly between endings 1, 3, 7 and 9, with the smallest possible noise.</p>
+<p>Alpöge's code claims both: RH for zeta, and GRH for every Dirichlet L-function. It does not claim GRH for the wider families (Dedekind, Hecke and general automorphic L-functions).</p>
+<h2 id="part-4-lean-the-proof-checker">Part 4. Lean, the proof checker</h2>
+<p>Alpöge did not publish a paper. He published a program in <strong>Lean</strong>.</p>
+<p>Lean is a programming language where a program is a proof. Each step has to follow from earlier steps by the basic rules of logic. A small core program, the <strong>kernel</strong>, checks every step. If the kernel accepts the whole file, the theorem is proved.</p>
+<p>There are only a few ways to cheat, and each one leaves a trace:</p>
+<ul>
+<li><code>sorry</code> means "trust me, I'll fill this in later". A proof with a <code>sorry</code> in it is not finished.</li>
+<li><code>axiom</code> adds a new assumption. Add the wrong one and you can prove anything.</li>
+<li>A few escape hatches (<code>native_decide</code>, <code>unsafe</code>, <code>implemented_by</code> and similar) let code skip parts of the kernel's checking.</li>
+</ul>
+<p>Lean can list every assumption a theorem rests on. You type <code>#print axioms</code> and the name of the theorem. For a clean proof the list has three entries and no more: <code>propext</code>, <code>Classical.choice</code> and <code>Quot.sound</code>. These are standard logical rules that all of Mathlib uses.</p>
+<p>So you don't need to read 17 million lines to trust the result. You need to trust the kernel, and you need to check that the statement at the top means what it says.</p>
+<h2 id="part-5-the-statement">Part 5. The statement</h2>
+<p>This is where proofs by computer can go wrong. A program can be perfectly correct and still prove the wrong thing, if someone defined "Riemann Hypothesis" in a weaker way.</p>
+<p>Alpöge closed that door for RH. The main theorem in <code>src/Main.lean</code> reads:</p>
+<pre><code class="language-lean">theorem riemannHypothesis : RiemannHypothesis := rhOfAll
+</code></pre>
+<p>The word <code>RiemannHypothesis</code> is not defined anywhere in his code. It comes from <strong>Mathlib</strong>, the shared maths library that hundreds of people have built since 2017. Its definition says: for every complex number <em>s</em>, if zeta is zero at <em>s</em>, and <em>s</em> is not one of the trivial zeros, and <em>s</em> is not 1, then the real part of <em>s</em> is ½. That definition existed long before this proof. Alpöge could not quietly bend it.</p>
+<p>The GRH statements are a different case. Mathlib does not have them yet, so they live in the project's own file, <code>src/Statements.lean</code>. It is 16 lines long and imports nothing but Mathlib. People have to read those 16 lines and agree they say the right thing. The checkers below did that by hand.</p>
+<h2 id="part-6-who-checked-it">Part 6. Who checked it</h2>
+<p>On release day, nobody had built the code. It takes a very large machine. Within about a day, three independent checks were done, and the Lean and Mathlib communities issued a statement.</p>
+<p><strong>Andrew Sutherland (MIT)</strong> compiled the whole project separately. Scientific American quoted him saying the proof was "independently rechecked by the Lean kernel with only the three standard axioms." His public record (updated 12:55 UTC on 21 November) reports all 175,187 modules compiling with zero errors on Lean v4.33.1. Two separate kernels written by other people, nanoda and con-leche, each accepted the full exported proof. A third, lean4lean, accepted every compiled module.</p>
+<p><strong>A second check, <a href="https://mrubinst.github.io/grh-lean-verification/">GRH Lean Check</a></strong>, is hosted at mrubinst.github.io and links to Michael Rubinstein's University of Waterloo page. It marked all its checks complete at 10:10 UTC on 21 November. It confirmed the downloaded source matched Alpöge's release byte for byte. It read the statements by hand and scanned all 175,187 files for the cheats from Part 4, finding none. It compiled everything with zero errors. <code>#print axioms</code> gave only the three standard axioms for all five headline theorems. It replayed every module through the kernel with zero rejections. The nanoda kernel checked 1,484,729 declarations with no errors.</p>
+<p><strong>A third group, <a href="https://github.com/Hertaspace/alpoge-rh-lean-verification">Hertaspace</a></strong>, says it has no ties to Alpöge. It finished its build at 22:02 UTC on 21 November and got the same three axioms. Its compiled main file has exactly the same fingerprint (SHA-256 hash) as the MIT build. Two machines, run by different people, produced the same bytes.</p>
+<p><strong>The Lean and Mathlib communities</strong> issued a joint statement on 21 November. Scientific American quotes it: "We hereby certify that both the statement and the proof of the Riemann Hypothesis are correct." Unite.ai reports that the Lean FRO and the Mathlib Initiative endorsed it. Scientific American's updated headline reads "The AI Riemann hypothesis proof is true, independent mathematicians confirm."</p>
+<p>A few things the record still shows as open or worth knowing:</p>
+<ul>
+<li><strong>Kevin Buzzard</strong> (Imperial College London) wrote that "We still await a successful comparator run." The comparator is a tool that checks the code does not secretly redefine any word in the statement. Scientific American says that run has now finished. The MIT and Hertaspace pages still listed it as running when last updated. I could not settle this from the pages I read.</li>
+<li>All three independent checks say they were run with <strong>Claude Code</strong>, Anthropic's AI agent, under human direction. The machine checking is independent of Alpöge, but the same family of AI tools sat on both sides.</li>
+<li>Some extra kernel runs (Lean's "paranoid" mode on the full export) were still in progress at the time of the MIT snapshot.</li>
+</ul>
+<h2 id="part-7-how-big-it-is">Part 7. How big it is</h2>
+<p>The code is about <strong>17.4 million lines</strong> in <strong>175,187 files</strong>. All of Mathlib is about 2 million lines. So this one proof is roughly eight times the size of the library it builds on.</p>
+<p>Alpöge says that if you wrote it out for humans, it would currently fill more than <strong>250,000 pages</strong>. His timeline runs from 6 October to 16 November 2026, about six weeks, with Claude writing most of the code.</p>
+<p>Most of those lines are not new ideas. They are decades of known mathematics that nobody had typed into Lean before: class field theory, the Chebotarev density theorem, abelian varieties, Shimura varieties, p-adic Hodge theory, the representation theory of big symmetry groups. Many folders are named <code>PublishedTheorems</code>. Before the new idea could run, the computer had to learn a large slice of modern number theory.</p>
+<table>
+<thead>
+<tr>
+<th>Folder</th>
+<th style="text-align: right;">Lines</th>
+<th>What's in it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Development/</code></td>
+<td style="text-align: right;">12.2 M</td>
+<td>the main argument and the heavy machinery under it</td>
+</tr>
+<tr>
+<td><code>Formalism/</code></td>
+<td style="text-align: right;">3.2 M</td>
+<td>medium-sized named components, including the final mirror step</td>
+</tr>
+<tr>
+<td><code>GroundTheory/</code></td>
+<td style="text-align: right;">1.1 M</td>
+<td>number fields, adeles, Galois cohomology</td>
+</tr>
+<tr>
+<td><code>ReciprocityTheory/</code></td>
+<td style="text-align: right;">563 K</td>
+<td>class field theory, Chebotarev</td>
+</tr>
+<tr>
+<td><code>CompanionTheory/</code></td>
+<td style="text-align: right;">194 K</td>
+<td>real groups, spectral geometry</td>
+</tr>
+<tr>
+<td>everything else</td>
+<td style="text-align: right;">~65 K</td>
+<td>small lemmas and positivity results</td>
+</tr>
+</tbody>
+</table>
+<h2 id="part-8-step-one-the-mirror">Part 8. Step one: the mirror</h2>
+<p>Now the proof itself, from the top down.</p>
+<p>Zeta has a built-in symmetry called the <strong>functional equation</strong>. It ties the value at a point on the left of the centre line to the value at its mirror image on the right. So zeros come in mirror pairs. If there is a zero at some spot to the left of the line, there is one at the matching spot to the right.</p>
+<p>That means you only have to prove one thing: <strong>there are no zeros to the right of the line.</strong> If none are on the right, the mirror says none are on the left. Every zero is then on the line.</p>
+<p>Mathematicians have known this reduction for about 150 years. In the Lean code it lives in <code>src/Formalism/GammaFactorNonvanishing/CritLine.lean</code>. Line 16 starts with a step called <code>lt_or_gt_of_ne</code>, which says "a zero off the line is either left of it or right of it". The proof then rules out each side. Alpöge jokes in his note that Claude's draft write-up opened the same way.</p>
+<p>The intermediate claim has a name in the code, <code>EveryCharacter</code>. It says that for every Dirichlet L-function, there is no zero with real part bigger than ½. Zeta is the simplest member of that family, so RH comes out as a special case.</p>
+<p>All the difficulty is in proving <code>EveryCharacter</code>. The rest of this explainer is about that.</p>
+<figure class="clip"><video src="media/MirrorStep.mp4" poster="media/MirrorStep.png" controls muted loop playsinline preload="none" aria-label="Zeros come in mirror pairs, so ruling out the right side rules out the left side too."></video><figcaption>Zeros come in mirror pairs, so ruling out the right side rules out the left side too.</figcaption></figure>
+
+<h2 id="part-9-step-two-a-trick-from-a-smaller-world">Part 9. Step two: a trick from a smaller world</h2>
+<p>Number theorists keep a toy version of the primes to practise on. Instead of whole numbers, it uses curves drawn over finite number systems, like clock arithmetic where 12 + 1 = 1. These toy worlds have their own zeta functions and their own Riemann Hypothesis.</p>
+<p>In the toy world, the hypothesis was proved. André Weil did it in the 1940s using heavy geometry. In the late 1960s Sergei Stepanov found a much more elementary proof, and his idea is the template for Alpöge's.</p>
+<p>Stepanov's trick goes in three moves.</p>
+<ol>
+<li><strong>Count points.</strong> In the toy world, RH is equivalent to a sharp count of the points on a curve. You want to show there aren't too many.</li>
+<li><strong>Build a polynomial that is zero at all of them, many times over.</strong> A polynomial can touch zero at a point and linger. The polynomial (x − 3)⁵ is zero at 3 "five times": it and its first four derivatives are all zero there. This is <strong>multiplicity</strong>. Stepanov builds a polynomial that has a high multiplicity at every point he wants to count.</li>
+<li><strong>Use the size limit.</strong> A polynomial of degree <em>d</em> has at most <em>d</em> roots, counting multiplicity. If every point is a root of multiplicity <em>m</em>, there can be at most <em>d</em> / <em>m</em> points. Pick <em>d</em> and <em>m</em> well and you get exactly the count RH needs.</li>
+</ol>
+<p>The catch is step 2. To measure multiplicity you take derivatives, and in the toy world you can. Over the ordinary whole numbers there is no good notion of a derivative. You can't ask for the slope of 7. That gap is roughly why Stepanov's method never crossed over to the real primes.</p>
+<figure class="clip"><video src="media/Multiplicity.mp4" poster="media/Multiplicity.png" controls muted loop playsinline preload="none" aria-label="(x − 3)ᵐ for m = 1 to 9. Higher multiplicity means the graph hugs zero longer at x = 3."></video><figcaption>(x − 3)ᵐ for m = 1 to 9. Higher multiplicity means the graph hugs zero longer at x = 3.</figcaption></figure>
+
+<h2 id="part-10-step-three-theta-lifts-as-stand-in-derivatives">Part 10. Step three: theta lifts as stand-in derivatives</h2>
+<p>Alpöge's new idea fills that gap.</p>
+<p>There is a classical tool called a <strong>theta lift</strong>. It starts with an <strong>automorphic form</strong>, a function with an enormous amount of symmetry. Modular forms, the objects at the heart of the proof of Fermat's Last Theorem, are the simplest examples. A theta lift takes such a form living on one symmetry group and produces a new form on a bigger group.</p>
+<p>His observation is that <strong>one theta lift behaves like one derivative.</strong> Each lift adds one level of "zero many times over". Chain <em>m</em> lifts together, through a sequence of bigger and bigger groups, and you get multiplicity <em>m</em>. That is exactly what Stepanov's counting argument needs, and now it works over the whole numbers.</p>
+<figure class="clip"><video src="media/ThetaChain.mp4" poster="media/ThetaChain.png" controls muted loop playsinline preload="none" aria-label="Each theta lift into a bigger group adds one level of multiplicity."></video><figcaption>Each theta lift into a bigger group adds one level of multiplicity.</figcaption></figure>
+
+<p>How long a chain? To control the primes up to some size <em>X</em>, the chain needs about <strong>√X</strong> lifts. The square root is the same square root from Part 3, the size of the noise RH promises. Alpöge writes that this is the line that will make fellow mathematicians "fall out of their chairs".</p>
+<p>He also says some of the description in his note is his paraphrase of Claude's summary of the code, and might need revising. The human-level account of this step is still being worked out.</p>
+<h2 id="part-11-the-supporting-cast">Part 11. The supporting cast</h2>
+<p>Many other famous results do jobs inside the argument. Alpöge's note names them. Below is what each one is in general. How each one fits into this proof is in his note, and in places he says even that is still provisional.</p>
+<ul>
+<li><strong>Iwasawa towers</strong>: an infinite stack of number fields, each built on the last. Alpöge's note uses them as the whole-number stand-in for a pigeonhole-style counting step that works easily in the toy world.</li>
+<li><strong>The Rallis seesaw</strong>: a classical identity that compares two different theta lifts.</li>
+<li><strong>The relative trace formula</strong>: a tool that turns sums over automorphic forms into sums you can compute from geometry.</li>
+<li><strong>The Siegel mass formula and the Chowla–Selberg formula</strong>: classical exact formulas, the first counting forms of a given type, the second giving special values.</li>
+<li><strong>The Bost slope inequality</strong>: a size bound from arithmetic geometry.</li>
+<li><strong>Behrend's construction</strong>: a large set of numbers with no three evenly spaced. Alpöge expects this one is not really needed.</li>
+</ul>
+<p>He is open that the argument is probably far longer than it has to be, and he expects shorter proofs to follow.</p>
+<h2 id="part-12-what-is-settled-and-what-is-not">Part 12. What is settled and what is not</h2>
+<p><strong>Settled:</strong> the code compiles, it uses only the three standard axioms, two kernels written by other people accept it, and the RH statement is Mathlib's own. The Lean and Mathlib communities have certified both statement and proof.</p>
+<p><strong>Still open:</strong></p>
+<ul>
+<li>One comparator run was reported as still going on some pages and finished on another.</li>
+<li>Nobody has a human-readable proof yet. Mathematicians know <em>that</em> it is true without yet knowing in detail <em>why</em> it works.</li>
+<li>The Clay Institute's rules ask for publication in a refereed venue and two years of acceptance. How they apply to a 17-million-line machine proof is up to Clay.</li>
+<li>The broader GRH, for Dedekind, Hecke and automorphic L-functions, is not covered.</li>
+</ul>
+<p>The next job is for people. Number theorists now have to read the new idea in Parts 9 and 10, write it up in a form a graduate student can follow, and look for the short proof inside the long one.</p>
+<hr />
+<h3 id="sources">Sources</h3>
+<ul>
+<li>Levent Alpöge, note and timeline: <a href="https://alpo.ge/remark.pdf">https://alpo.ge/remark.pdf</a></li>
+<li>Scientific American, "The AI Riemann hypothesis proof is true, independent mathematicians confirm" (Clara Moskowitz, 20 Nov 2026, updated 21 Nov): <a href="https://www.scientificamerican.com/article/the-ai-riemann-hypothesis-proof-is-almost-certainly-true-independent-mathematicians-attest/">https://www.scientificamerican.com/article/the-ai-riemann-hypothesis-proof-is-almost-certainly-true-independent-mathematicians-attest/</a></li>
+<li>Unite.ai, "Lean and Mathlib Communities Certify Claude-Assisted Riemann Proof" (21 Nov 2026): <a href="https://www.unite.ai/lean-and-mathlib-communities-certify-claude-assisted-riemann-proof/">https://www.unite.ai/lean-and-mathlib-communities-certify-claude-assisted-riemann-proof/</a></li>
+<li>GRH Lean Check (Rubinstein-linked independent check): <a href="https://mrubinst.github.io/grh-lean-verification/">https://mrubinst.github.io/grh-lean-verification/</a></li>
+<li>Hertaspace independent build and axiom check: <a href="https://github.com/Hertaspace/alpoge-rh-lean-verification">https://github.com/Hertaspace/alpoge-rh-lean-verification</a></li>
+<li>Mirror of the code: <a href="https://github.com/CocoSgt/riemann-hypothesis-lean">https://github.com/CocoSgt/riemann-hypothesis-lean</a></li>
+</ul>
+    <footer>
+      Animations made with <a href="https://www.manim.community/">Manim Community</a>; zeta zeros computed with mpmath.
+      Source: <a href="https://github.com/eagnespuerto/riemann-2026-explainer">eagnespuerto/riemann-2026-explainer</a>.
+      Text CC BY 4.0, code MIT. The proof is the work of <a href="https://alpo.ge/">Levent Alpöge</a>.
+    </footer>
+  </main>
+</div>
+<button class="theme" type="button" aria-label="Toggle colour theme">Theme</button>
+<script>
+(function () {
+  var root = document.documentElement, key = "rh-theme";
+  try { var saved = localStorage.getItem(key); if (saved) root.dataset.theme = saved; } catch (e) {}
+  document.querySelector(".theme").addEventListener("click", function () {
+    var dark = root.dataset.theme ? root.dataset.theme === "dark"
+      : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem(key, root.dataset.theme); } catch (e) {}
+  });
+  // play clips while they are on screen, pause when scrolled away
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        var v = e.target;
+        if (e.isIntersecting) { v.preload = "auto"; v.play().catch(function () {}); }
+        else { v.pause(); }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll("figure.clip video").forEach(function (v) { io.observe(v); });
+  }
+})();
+</script>
+</body>
+</html>

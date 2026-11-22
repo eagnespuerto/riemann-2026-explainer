@@ -1,0 +1,3 @@
+manim==0.22.1
+mpmath==1.3.0
+markdown==3.11.3

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riemann 2026 Explainer</title>
+<meta name="description" content="A part-by-part pop-math explainer of Levent Alpöge's Lean proof of the Riemann Hypothesis, with manim animations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fbfaf7; --fg: #1d1d1f; --muted: #5f6368; --rule: #e3e0d8;
+  --accent: #b5651d; --line: #b8860b; --card: #ffffff; --code: #f2efe8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14151a; --fg: #e8e6e1; --muted: #a3a6ad; --rule: #2c2e36;
+    --accent: #f0a35e; --line: #e8c15a; --card: #1c1d23; --code: #23252c;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14151a; --fg: #e8e6e1; --muted: #a3a6ad; --rule: #2c2e36;
+  --accent: #f0a35e; --line: #e8c15a; --card: #1c1d23; --code: #23252c;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 18px/1.65 "Source Serif 4", Georgia, serif;
+}
+.layout { display: grid; grid-template-columns: 1fr; max-width: 1180px; margin: 0 auto; padding: 0 16px; gap: 48px; }
+@media (min-width: 1000px) { .layout { grid-template-columns: 240px minmax(0, 720px); } }
+nav.toc { font: 14px/1.5 Inter, system-ui, sans-serif; color: var(--muted); }
+@media (min-width: 1000px) { nav.toc { position: sticky; top: 24px; align-self: start; max-height: calc(100vh - 48px); overflow: auto; padding-top: 40px; } }
+@media (max-width: 999px) { nav.toc { border-bottom: 1px solid var(--rule); padding: 16px 0; } }
+nav.toc ul { list-style: none; padding: 0; margin: 0; }
+nav.toc ul ul { display: none; }
+nav.toc a { color: inherit; text-decoration: none; display: block; padding: 3px 0; }
+nav.toc a:hover { color: var(--accent); }
+main { padding: 40px 0 80px; min-width: 0; }
+h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 0 0 12px; }
+h2 { font-size: 26px; margin: 56px 0 12px; padding-top: 12px; border-top: 1px solid var(--rule); }
+h3 { font: 600 18px/1.4 Inter, system-ui, sans-serif; margin: 32px 0 8px; }
+a { color: var(--accent); overflow-wrap: anywhere; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+code { background: var(--code); padding: 1px 5px; border-radius: 4px; font-size: 0.85em; overflow-wrap: anywhere; }
+pre { background: var(--code); padding: 14px 16px; border-radius: 8px; overflow-x: auto; font-size: 15px; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; font: 15px/1.4 Inter, system-ui, sans-serif; display: block; overflow-x: auto; }
+th, td { border-bottom: 1px solid var(--rule); padding: 8px 10px; text-align: left; vertical-align: top; }
+figure.clip { margin: 28px 0; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid var(--rule); }
+figure.clip video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #000; }
+figure.clip figcaption { background: var(--card); color: var(--muted); font: 14px/1.5 Inter, system-ui, sans-serif; padding: 10px 14px; }
+.theme { position: fixed; right: 16px; bottom: 16px; font: 13px Inter, system-ui, sans-serif; background: var(--card); color: var(--fg); border: 1px solid var(--rule); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+footer { color: var(--muted); font: 14px/1.5 Inter, system-ui, sans-serif; border-top: 1px solid var(--rule); padding-top: 16px; margin-top: 56px; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="toc" aria-label="Contents"><strong>Contents</strong>{{toc}}</nav>
+  <main>
+{{body}}
+    <footer>
+      Animations made with <a href="https://www.manim.community/">Manim Community</a>; zeta zeros computed with mpmath.
+      Source: <a href="https://github.com/eagnespuerto/riemann-2026-explainer">eagnespuerto/riemann-2026-explainer</a>.
+      Text CC BY 4.0, code MIT. The proof is the work of <a href="https://alpo.ge/">Levent Alpöge</a>.
+    </footer>
+  </main>
+</div>
+<button class="theme" type="button" aria-label="Toggle colour theme">Theme</button>
+<script>
+(function () {
+  var root = document.documentElement, key = "rh-theme";
+  try { var saved = localStorage.getItem(key); if (saved) root.dataset.theme = saved; } catch (e) {}
+  document.querySelector(".theme").addEventListener("click", function () {
+    var dark = root.dataset.theme ? root.dataset.theme === "dark"
+      : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem(key, root.dataset.theme); } catch (e) {}
+  });
+  // play clips while they are on screen, pause when scrolled away
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        var v = e.target;
+        if (e.isIntersecting) { v.preload = "auto"; v.play().catch(function () {}); }
+        else { v.pause(); }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll("figure.clip video").forEach(function (v) { io.observe(v); });
+  }
+})();
+</script>
+</body>
+</html>
